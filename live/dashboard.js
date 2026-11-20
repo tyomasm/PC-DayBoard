@@ -8,15 +8,26 @@ function element(tag, text, className) {
 const timeOf = stamp => clockFormat.format(new Date(stamp * 1000));
 const dateOf = new Intl.DateTimeFormat('ja-JP', {timeZone:'Asia/Tokyo', month:'numeric', day:'numeric'});
 const displayTime = stamp => dateOf.format(new Date(stamp * 1000)) + ' ' + timeOf(stamp);
-function weatherName(code) {
-    if (code === 0) return '快晴';
-    if (code === 1) return '晴れ';
-    if (code === 2) return '晴れ時々曇り';
-    if (code === 3) return '曇り';
-    if (code <= 48) return '霧';
-    if (code >= 95) return '雷雨';
-    if ((code >= 71 && code <= 77) || code === 85 || code === 86) return '雪';
-    return '雨';
+const conditions = new Map();
+for (const [codes, name, symbol] of [
+    [[0], '快晴', 'sun'], [[1], '晴れ', 'sun'], [[2], '晴れ時々曇り', 'part'],
+    [[3], '曇り', 'cloud'], [[45,48], '霧', 'fog'],
+    [[51,53,55,56,57,61,63,65,66,67,80,81,82], '雨', 'rain'],
+    [[71,73,75,77,85,86], '雪', 'snow'], [[95,96,99], '雷雨', 'thunder']
+]) {
+    for (const code of codes) conditions.set(code, {name, symbol});
+}
+function condition(code) {
+    return conditions.get(code) || {name:'予報不明', symbol:'info'};
+}
+function forecastIcon(code) {
+    const {name, symbol} = condition(code);
+    const pictogram = element('span', '', 'weather-icon');
+    pictogram.title = name;
+    pictogram.setAttribute('role', 'img');
+    pictogram.setAttribute('aria-label', name);
+    pictogram.innerHTML = icon(symbol);
+    return pictogram;
 }
 function renderWeather(data) {
     if (!data) {
@@ -29,7 +40,7 @@ function renderWeather(data) {
     }
     const c = data.current;
     $('.temp').replaceChildren(String(Math.round(c.temperature_2m)), element('sup','°C'));
-    $('.condition').textContent = weatherName(c.weather_code);
+    $('.condition').textContent = condition(c.weather_code).name;
     $('.limits').textContent = '↑ ' + Math.round(data.high) + '°　↓ ' + Math.round(data.low) + '°';
     const direction = ['北','北東','東','南東','南','南西','西','北西'][Math.round(c.wind_direction_10m / 45) % 8];
     $('.weatherinfo').replaceChildren(element('span','湿度 ' + c.relative_humidity_2m + '%'),element('span',direction + '風 ' + c.wind_speed_10m + ' m/s'));
@@ -38,7 +49,7 @@ function renderWeather(data) {
         const when = new Date(stamp);
         const label = (day === dateOf.format(when) ? '' : '翌') + clockFormat.format(when).slice(0,2) + '時';
         const cell = element('div','','forecast');
-        cell.append(element('small',label),element('small',weatherName(code)),element('b',temp+'°'));
+        cell.append(element('small',label),forecastIcon(code),element('b',temp+'°'));
         return cell;
     }));
 }
