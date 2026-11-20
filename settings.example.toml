@@ -1,0 +1,9 @@
+# このファイルを settings.toml として同じ場所にコピーします。
+# 空欄では架空の見出しを表示します。利用条件に合うRSS 2.0のHTTPS URLを指定してください。
+# 個人利用時の記入例（Yahoo!ニュース・経済）
+# rss_url = "https://news.yahoo.co.jp/rss/categories/business.xml"
+rss_url = ""
+
+# 現在地の取得を許可しない場合の予報地点（任意）
+# latitude = 0.00
+# longitude = 0.00

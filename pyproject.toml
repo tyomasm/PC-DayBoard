@@ -1,0 +1,5 @@
+[project]
+name = "dayboard"
+version = "1.0.0"
+requires-python = ">=3.12,<3.13"
+dependencies = ["Flask>=3,<4", "waitress>=3,<4", "requests>=2.32,<3", "caldav>=2,<3", "icalendar>=6,<8", "keyring>=25,<26", "tzdata"]
